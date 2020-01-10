@@ -1,0 +1,49 @@
+{
+  "variables": {
+    "iso": "/home/rizal/projects/CentOS-7-x86_64-DVD-1810.iso",
+    "checksum": "6d44331cc4f6c506c7bbe9feb8468fad6c51a88ca1393ca6b8b486ea04bec3c1"
+  },
+  "builders": [
+    {
+      "type": "virtualbox-iso",
+      "iso_url": "{{ user `iso` }}",
+      "iso_checksum": "{{ user `checksum` }}",
+      "iso_checksum_type": "sha256",
+      "vm_name": "CentOSwApache",
+      "guest_os_type": "RedHat_64",
+      "ssh_username": "root",
+      "ssh_password": "akuganteng",
+      "boot_wait": "5s",
+      "ssh_wait_timeout": "150m",
+      "vboxmanage": [
+        ["modifyvm", "{{.Name}}", "--memory", "2048"],
+        ["modifyvm", "{{.Name}}", "--cpus", "2"],
+        ["modifyvm", "{{.Name}}", "--audio", "none"]
+      ],
+      "disk_size": "51200",
+      "http_directory": "http",
+      "format": "ova",
+      "boot_command": [
+        "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
+      ],
+      "shutdown_command": "/sbin/halt -p"
+    }
+  ],
+  "provisioners":[{
+    
+      "type": "shell",
+      "inline": ["mkdir /tmp/config"]
+  },
+  {
+      "type": "file",
+      "source": "/home/rizal/projects/centosTry2/config.zip",
+      "destination": "/tmp/config/config.zip"
+  },
+  {
+    "type": "shell",
+    "scripts":[
+      "/home/rizal/projects/centosTry2/ScriptCentosFIX2.sh"
+    ],
+    "timeout": "45m"
+}]
+}
