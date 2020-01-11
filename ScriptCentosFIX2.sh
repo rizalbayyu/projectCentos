@@ -48,10 +48,11 @@ sleep 2s
 # Spawn=Memanggil atau memulai Script atau Program
 # expect=Menunggu output dari program
 # send=Memberi balasan untuk program
+mysqladmin -u root password '123'
 SECURE_MYSQL=$(expect -c "
 spawn mysql_secure_installation
 expect \"Enter current password for root (enter for none):\"
-send \"\r\"
+send \"$MYSQL\r\"
 expect \"Change the root password?\"
 send \"y\r\"
 expect \"New password\"
@@ -92,23 +93,25 @@ tar -xvzf latest.tar.gz
 # Copy wordpress
 cp -rf wordpress/* /var/www/html/
 #move config from tmp config
-cp /tmp/config/wp-config.php /var/www/html/
+mv /tmp/config/wp-config.php /var/www/html/
 # Give permission user to apache
-chown -R apache /var/www/html/
+chown -R apache:apache /var/www/html/
 #change access permissions
 chmod -R 755 /var/www/html/
-#relationship between selinux
-chcon -R --reference /var/www/ /var/www/html/
 
-# go to httpd.conf to edit/add virtualhost
-cat <<EOT>> /etc/httpd/conf/httpd.conf
-<VirtualHost *:80>
-  ServerAdmin rizal@ganteng.com
-  DocumentRoot /var/www/html/
-  ServerName ganteng.com
-  ServerAlias www.ganteng.comID
-  ErrorLog /var/log/httpd/ganteng-error-log
-  CustomLog /var/log/httpd/ganteng-acces-log common
-</VirtualHost>
-EOT
+mkdir /etc/mysql
+mv /tmp/config/my.cnf /etc/mysql
+mv /tmp/config/SELinux /etc/selinux/config
+
+# # go to httpd.conf to edit/add virtualhost
+# cat <<EOT>> /etc/httpd/conf/httpd.conf
+# <VirtualHost *:80>
+#   ServerAdmin rizal@ganteng.com
+#   DocumentRoot /var/www/html/
+#   ServerName ganteng.com
+#   ServerAlias www.ganteng.comID
+#   ErrorLog /var/log/httpd/ganteng-error-log
+#   CustomLog /var/log/httpd/ganteng-acces-log common
+# </VirtualHost>
+# EOT
 systemctl restart httpd
